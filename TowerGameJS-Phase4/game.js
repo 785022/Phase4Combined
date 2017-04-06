@@ -32,6 +32,7 @@ class Game {
     this.bullets = [];
     this.bankValue = 500;
     this.loadScreen = true;
+    this.dead = false;
     this.canvas = document.createElement("canvas");
     if(!this.canvas || !this.canvas.getContext)
         throw "No valid canvas found!";
@@ -55,6 +56,7 @@ class Game {
     window.addEventListener('keypress', function(evt) {
         if(evt.key == "E" || evt.key == "e")
             towerGame.sendEnemies();
+            towerGame.dead = true;
         }, false);
 
     this.mouseX = 0;
@@ -108,41 +110,54 @@ class Game {
   hideImgElement() { this.style.display = "none"; }
 
   run() { // called from draw()
-    let gt = this.updateGameTime();
-    this.updateInfoElements(gt);
-    this.removeBullets();
-    this.removeEnemies();
-    if (this.isRunning) {
-      this.render();
-    }
+    if (!this.dead){
+      let gt = this.updateGameTime();
+      this.updateInfoElements(gt);
+      this.removeBullets();
+      this.removeEnemies();
+      if (this.isRunning) {
+        this.render();
+      }
 
-    if (!this.loadScreen){
-      // draw the grid
-      for(let i = 0; i < this.cols; i++){
-        for(let j = 0; j < this.rows; j++){
-          this.grid[i][j].render();
+      if (!this.loadScreen){
+        // draw the grid
+        for(let i = 0; i < this.cols; i++){
+          for(let j = 0; j < this.rows; j++){
+            this.grid[i][j].render();
+          }
         }
-      }
-       // draw the towers
-      for (let i = 0; i < this.towers.length; i++) {
-        this.towers[i].run();
-      }
-      for (let i = 0; i < this.enemies.length; i++) {
-        this.enemies[i].run();
-      }
-      for (let i = 0; i < this.bullets.length; i++) {
-        this.bullets[i].run();
-      }
+         // draw the towers
+        for (let i = 0; i < this.towers.length; i++) {
+          this.towers[i].run();
+        }
+        for (let i = 0; i < this.enemies.length; i++) {
+          this.enemies[i].run();
+        }
+        for (let i = 0; i < this.bullets.length; i++) {
+          this.bullets[i].run();
+        }
 
-      // some help text in the bottom left of the canvas
-      this.context.save();
-      this.context.fillStyle = "white";
-      this.context.font = "14px sans-serif";
-      this.context.fillText("Press the E key to send enemies", 20, this.canvas.height-20);
-      this.context.restore();
+        // some help text in the bottom left of the canvas
+        this.context.save();
+        this.context.fillStyle = "white";
+        this.context.font = "14px sans-serif";
+        this.context.fillText("Press the E key to send enemies", 20, this.canvas.height-20);
+        this.context.restore();
+      } else {
+        console.log("Load Screen: ", this.loadScreen);
+        this.runSplashScreen();
+      }
     } else {
-      console.log("Load Screen: ", this.loadScreen);
-      this.runSplashScreen();
+      this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.context.fillStyle = "black";
+      this.context.fillRect(0,0, this.canvas.width, this.canvas.height);
+      this.fillStyle = "white";
+      var newBut = document.createElement("button");
+      newBut.setAttribute("class", "but");
+
+      if (document.body.getElementsByClassName("but").length <= 0){
+        document.getElementById("canDiv").canvasDiv.appendChild(newBut);
+    }
     }
   }
 
@@ -411,7 +426,6 @@ class Game {
       towerGame.createTower(this);
       towerGame.placingTower = true;
     }
-
   }
 //  ++++++++++++++++++++++++++++++++++++++++++++++++++    mouse handlers
   handleCNVMouseOver() {
