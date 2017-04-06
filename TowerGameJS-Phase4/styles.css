@@ -56,6 +56,18 @@ body{
   margin-left:10px;
   float:left;
 }
+.spinner{
+  width: 100px;
+  height: 100px;
+
+  border-radius: 50%;
+  border: 5px red;
+  position: fixed;
+}
+@keyframes spin{
+  transform: rotate(180deg);
+}
+
 #towImgDiv0{
   background-color: #DDD;
   border:solid black 2px;

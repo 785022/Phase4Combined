@@ -1,22 +1,22 @@
 'use strict'
 
 // wait for the window to load and than call back setup()
-window.addEventListener('load', setup, false);
+//window.addEventListener('load', setup, false);
 
 var towerGame;   // the global game object
 const FRAME_RATE=30;
 var cellId = 0;
 
 
-function setup() {
-  towerGame = new Game();
-  window.setTimeout(draw, 100);    // wait 100ms for resources to load then start draw loop
-}
+//function setup() {
+//  towerGame = new Game();
+//  window.setTimeout(draw, 100);    // wait 100ms for resources to load then start draw loop
+//}
 
-function draw() {   // the animation loop
-    towerGame.run();
-    window.setTimeout(draw, 1000/FRAME_RATE);  // come back here every interval
-}
+//function draw() {   // the animation loop
+//    towerGame.run();
+//    window.setTimeout(draw, 1000/FRAME_RATE);  // come back here every interval
+//}
 
 // Game is the top level object and it contains the levels
 class Game {
