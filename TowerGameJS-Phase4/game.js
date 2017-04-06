@@ -31,6 +31,7 @@ class Game {
     this.enemies = [];
     this.bullets = [];
     this.bankValue = 500;
+    this.loadScreen = true;
     this.canvas = document.createElement("canvas");
     if(!this.canvas || !this.canvas.getContext)
         throw "No valid canvas found!";
@@ -48,6 +49,8 @@ class Game {
     this.canvas.addEventListener('mousemove',this.handleCNVMouseMoved,false);
     this.canvas.addEventListener('mouseover',this.handleCNVMouseOver, false);
     this.canvas.addEventListener('click', this.handleCNVMouseClicked, false);
+
+    document.body.style.margin = "0";
 
     window.addEventListener('keypress', function(evt) {
         if(evt.key == "E" || evt.key == "e")
@@ -71,6 +74,37 @@ class Game {
   // The success callback when a tower canvas image
   // or bullet image has loaded.  Hide them from
   // displaying on the page.
+
+  runSplashScreen(){
+    document.getElementById("wrapperDiv").style.display = "none";
+    if (document.body.getElementsByClassName("img").length <= 0){
+      var splashScreen = document.createElement("img");
+      splashScreen.setAttribute("src", "images/bg.jpg");
+      splashScreen.setAttribute("class", "img");
+      splashScreen.style.width = "100%";
+      splashScreen.style.height = "100%";
+      splashScreen.style.position = "fixed";
+
+      var startButton = document.createElement("button");
+      var startText = document.createTextNode("CLICC ME");
+      startButton.style.height = "20%";
+      startButton.style.width = "17%";
+      startButton.style.position = "fixed";
+      startButton.style.top = "43%";
+      startButton.style.left = "43%";
+      startButton.appendChild(startText);
+      startButton.onclick = function(){
+        console.log("pressed");
+        towerGame.loadScreen = false;
+        document.getElementById("wrapperDiv").style.display = "block";
+        startButton.style.display = "none";
+        splashScreen.style.display = "none";
+      };
+      document.body.appendChild(splashScreen);
+      document.body.appendChild(startButton);
+    }
+  }
+
   hideImgElement() { this.style.display = "none"; }
 
   run() { // called from draw()
@@ -82,34 +116,38 @@ class Game {
       this.render();
     }
 
-    // draw the grid
-    for(let i = 0; i < this.cols; i++){
-      for(let j = 0; j < this.rows; j++){
-        this.grid[i][j].render();
+    if (!this.loadScreen){
+      // draw the grid
+      for(let i = 0; i < this.cols; i++){
+        for(let j = 0; j < this.rows; j++){
+          this.grid[i][j].render();
+        }
       }
-    }
-     // draw the towers
-    for (let i = 0; i < this.towers.length; i++) {
-      this.towers[i].run();
-    }
-    for (let i = 0; i < this.enemies.length; i++) {
-      this.enemies[i].run();
-    }
-    for (let i = 0; i < this.bullets.length; i++) {
-      this.bullets[i].run();
-    }
+       // draw the towers
+      for (let i = 0; i < this.towers.length; i++) {
+        this.towers[i].run();
+      }
+      for (let i = 0; i < this.enemies.length; i++) {
+        this.enemies[i].run();
+      }
+      for (let i = 0; i < this.bullets.length; i++) {
+        this.bullets[i].run();
+      }
 
-    // some help text in the bottom left of the canvas
-    this.context.save();
-    this.context.fillStyle = "white";
-    this.context.font = "14px sans-serif";
-    this.context.fillText("Press the E key to send enemies", 20, this.canvas.height-20);
-    this.context.restore();
+      // some help text in the bottom left of the canvas
+      this.context.save();
+      this.context.fillStyle = "white";
+      this.context.font = "14px sans-serif";
+      this.context.fillText("Press the E key to send enemies", 20, this.canvas.height-20);
+      this.context.restore();
+    } else {
+      console.log("Load Screen: ", this.loadScreen);
+      this.runSplashScreen();
+    }
   }
 
   render() { // draw game stuff
     this.context.clearRect(0,0,this.canvas.width, this.canvas.height);
-
   }
 
       // brushfire()
