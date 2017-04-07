@@ -33,6 +33,8 @@ class Game {
     this.bankValue = 500;
     this.loadScreen = true;
     this.dead = false;
+    this.millis;
+
     this.canvas = document.createElement("canvas");
     if(!this.canvas || !this.canvas.getContext)
         throw "No valid canvas found!";
@@ -78,8 +80,9 @@ class Game {
   // displaying on the page.
 
   runSplashScreen(){
+    console.log("Nums", document.body.getElementsByClassName("img").length);
     document.getElementById("wrapperDiv").style.display = "none";
-    if (document.body.getElementsByClassName("img").length <= 0){
+    if (document.body.getElementsByClassName("img").length == 0 ){
       var splashScreen = document.createElement("img");
       splashScreen.setAttribute("src", "images/bg.jpg");
       splashScreen.setAttribute("class", "img");
@@ -144,25 +147,64 @@ class Game {
         this.context.fillText("Press the E key to send enemies", 20, this.canvas.height-20);
         this.context.restore();
       } else {
-        console.log("Load Screen: ", this.loadScreen);
         this.runSplashScreen();
       }
     } else {
       this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
       this.context.fillStyle = "black";
       this.context.fillRect(0,0, this.canvas.width, this.canvas.height);
-      this.fillStyle = "white";
-      var newBut = document.createElement("button");
-      newBut.setAttribute("class", "but");
+      this.context.fillStyle = "white";
+      this.context.fillRect(this.canvas.width/2 - 120, this.canvas.height/2-180, 240, 360);
+      this.context.fillStyle = "white";
+      this.context.font = "70px Arial";
+      this.context.fillText("Hello World", this.canvas.width/3.2, this.canvas.height/4.5);
 
-      if (document.body.getElementsByClassName("but").length <= 0){
-        document.getElementById("canDiv").canvasDiv.appendChild(newBut);
-    }
+      if (document.body.getElementsByClassName("ayylmao").length <= 0){
+        var newButton = document.createElement("button");
+        newButton.style.zIndex = "45";
+        newButton.setAttribute("class", "ayylmao");
+        newButton.style.position = "absolute";
+        newButton.style.width = "200px";
+        newButton.style.height = "100px";
+        newButton.style.backgroundColor = "grey";
+        newButton.style.top = "700px";
+        newButton.style.left = "573px";
+        newButton.onclick = function(){
+          newButton.style.display = "none";
+          towerGame.restartGame();
+        }
+
+        document.getElementById("canDiv").appendChild(newButton);
+      }
     }
   }
 
   render() { // draw game stuff
     this.context.clearRect(0,0,this.canvas.width, this.canvas.height);
+  }
+
+  restartGame(){
+    this.isRunning = true;
+    this.placingTower = false;
+    this.currentTower = 0;
+    this.towerType = 0;
+    this.gameTime = 0;
+    this.towers = [];
+    this.enemies = [];
+    this.bullets = [];
+    this.bankValue = 500;
+    this.loadScreen = true;
+    this.dead = false;
+  //  document.getElementById("canDiv").style.display = "block";
+    //this.loadScreen = true;
+    this.millis = 0;
+    if (document.getElementsByClassName("img").length > 0){
+      var elements = document.getElementsByClassName("odd");
+    //  console.log("TETEJRHCDFGHFDFKJ")
+      for (var i = 0; i < elements.length; i++){
+        document.body.removeChild(elements[i]);
+      }
+    }
   }
 
       // brushfire()
@@ -292,10 +334,10 @@ class Game {
   }
 
   updateGameTime(){
-    var millis = Date.now();
-    if(millis - this.lastTime >= 1000) {
+    this.millis = Date.now();
+    if(this.millis - this.lastTime >= 1000) {
       this.gameTime++;
-      this.lastTime = millis;
+      this.lastTime = this.millis;
     }
     return this.gameTime;
   }
