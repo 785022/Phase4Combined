@@ -37,11 +37,11 @@ class Wave {
   }
     //parses JSON
     enemySelector(game,enemyJSON) {
-      for(i = 0; i < 3; i++) { // try 3 times to find valid start cell
+      for(var i = 0; i < 3; i++) { // try 3 times to find valid start cell
         // will caculate row and column within the range specified by JSON file
         let row = Math.floor(Math.floor(Math.random()*(game.rows*(enemyJSON.enemyPosition[1][1]-enemyJSON.enemyPosition[1][0])))+game.rows*enemyJSON.enemyPosition[1][0]);
         let col = Math.floor(Math.floor(Math.random()*(game.cols*(enemyJSON.enemyPosition[0][1]-enemyJSON.enemyPosition[0][0])))+game.cols*enemyJSON.enemyPosition[0][0]);
-        startCell = game.grid[col][row];
+        var startCell = this.game.grid[col][row];
         if(startCell && startCell.parent)   // must have a parent to have any path
         break;
       }
