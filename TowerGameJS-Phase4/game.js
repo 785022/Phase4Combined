@@ -333,9 +333,12 @@ class Game {
     for(var i = 0; i < 5; i++){
       var mtd = document.createElement("div"); // createDiv("");
 <<<<<<< HEAD
+<<<<<<< HEAD
       var cnvTurImgPath = "images/tow" + (i+1) + "s.png";  // small tower image for canvas
       var cnvBulImgPath = "images/b" + (i+1) + ".png";     // bullet image for canvas
 =======
+=======
+>>>>>>> refs/remotes/origin/master
       var h5 = document.createTextNode("Cost");
       var cnvTurImgPath = "tow" + (i+1) + "s.png";  // small tower image for canvas
       var cnvBulImgPath = "b" + (i+1) + ".png";     // bullet image for canvas
