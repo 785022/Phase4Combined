@@ -12,6 +12,7 @@ class Tower {
     this.towAngle = 0;
     this.lastTime = Date.now();
     this.coolDown = 500;
+    towerGame.bankValue = towerGame.bankValue- this.cost;
   }
   run() {
     this.render();
@@ -22,7 +23,7 @@ class Tower {
     ctx.save();
       ctx.translate(this.loc.x, this.loc.y);
       ctx.rotate(this.towAngle);
-      if (this.visible) { //  not visible when first created 
+      if (this.visible) { //  not visible when first created
         ctx.drawImage(this.towImg, -this.towImg.width/2,-this.towImg.height/2);
         }
     ctx.restore();
@@ -48,6 +49,7 @@ class Tower {
           let bulletLocation = vector2d(this.loc.x, this.loc.y);
           let b = new Bullet(bulletLocation , this.bulletImg, this.towAngle);
           towerGame.bullets.push(b);
+
     }
   }
 

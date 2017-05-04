@@ -55,6 +55,8 @@ body{
   margin-top:38px;
   margin-left:10px;
   float:left;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14pt;
 }
 #towImgDiv0{
   background-color: #DDD;
