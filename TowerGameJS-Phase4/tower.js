@@ -13,6 +13,9 @@ class Tower {
     this.lastTime = Date.now();
     this.coolDown = 500;
     towerGame.bankValue = towerGame.bankValue- this.cost;
+    this.range=200
+    this.enemy=null
+    this.target=null
   }
   run() {
     this.render();
@@ -30,19 +33,25 @@ class Tower {
   }
   update() {
     //  Rotate turret to follow mouse
-    let dx = this.loc.x - towerGame.canvas.mouseX;
-    let dy = this.loc.y - towerGame.canvas.mouseY;
+    this.enemy=this.findEnemy()
+    if(this.enemy){
+      this.target=this.enemy.loc
+    }else{
+      this.target=vector2d(towerGame.canvas.mouseX,towerGame.canvas.mouseY)
+    }
+    let dx = this.loc.x - this.target.x
+    let dy = this.loc.y - this.target.y;
     this.towAngle = Math.atan2(dy, dx) - Math.PI;
     this.checkEnemies();
   }
 
   checkEnemies(){
-    let dx = this.loc.x - towerGame.canvas.mouseX;
-    let dy = this.loc.y - towerGame.canvas.mouseY;
+    let dx = this.loc.x - this.target.x;
+    let dy = this.loc.y - this.target.y;
     let dist = vector2d(dx,dy).length();
     let millis = Date.now();
      if(this.placed &&
-      dist < 200 &&
+      dist < this.range &&
       (millis-this.lastTime > this.coolDown )){
           // reset lastTime to current time
           this.lastTime = millis;
@@ -50,6 +59,14 @@ class Tower {
           let b = new Bullet(bulletLocation , this.bulletImg, this.towAngle);
           towerGame.bullets.push(b);
 
+    }
+  }
+  findEnemy() {
+    var tempEnemies=towerGame.enemies
+    for(var i=0;i<tempEnemies.length;i++){
+      if(tempEnemies[i].loc.dist(this.loc)<this.range){
+        return tempEnemies[i]
+      }
     }
   }
 
