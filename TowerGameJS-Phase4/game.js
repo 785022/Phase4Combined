@@ -11,6 +11,9 @@ var cellId = 0;
 function setup() {
   towerGame = new Game();
   window.setTimeout(draw, 100);    // wait 100ms for resources to load then start draw loop
+
+  //panelthings
+
 }
 
 function draw() {   // the animation loop
@@ -64,6 +67,35 @@ class Game {
     this.mouseY = 0;
     this.w = 20;
     this.done = false;
+
+    //panelthings
+    this.panelStart = new Panel(this, 100,-500,"panelStart")
+
+    this.panelStart.ceatebutton("Start",
+      function(){
+        document.getElementById("panelStart").style.display = 'none'
+        towerGame.panelStart.go = true
+      })
+    this.panelStart.ceatebutton("Instructions",
+      function(){
+        console.log(towerGame)
+        towerGame.panelInstructions = new Panel(this,100,-500, "panelInstructions")
+        document.getElementById("panelStart").style.display = 'none'
+        towerGame.panelInstructions.ceatebutton("Back",
+          function(){
+            document.getElementById("panelStart").style.display = 'block'
+            document.getElementById("panelInstructions").parentNode.removeChild(document.getElementById("panelInstructions"))
+          })
+
+      })
+    this.panelStart.ceatebutton("Quit",
+      function(){
+        towerGame.panelQuit = new Panel(this,100,-500,"panelQuit")
+        document.getElementById("panelStart").style.display = 'none'
+      })
+
+
+
     // containerarrays for cells
     this.grid = [];
     this.cols = Math.floor(this.canvas.width / this.w);
@@ -112,6 +144,24 @@ class Game {
     this.context.font = "14px sans-serif";
     this.context.fillText("Press the E key to send enemies", 20, this.canvas.height-20);
     this.context.restore();
+
+    //more panelthings
+    //console.log(this.panelStart)
+    if(this.panelStart){
+      this.panelStart.render()
+    }
+
+    //console.log(this.panelInstructions)
+    if(this.panelInstructions){
+      this.panelInstructions.render()
+    }
+    //console.log(this.panelQuit)
+    if(this.panelQuit){
+      this.panelQuit.render()
+    }
+    // if(!this.panelStart.go){
+    //   this.gameTime = 0
+    // }
   }
 
   render() { // draw game stuff
@@ -302,7 +352,7 @@ class Game {
 
   updateGameTime(){
     var millis = Date.now();
-    if(millis - this.lastTime >= 1000) {
+    if(millis - this.lastTime >= 1000 && this.panelStart.go) {
       this.gameTime++;
       this.lastTime = millis;
     }
