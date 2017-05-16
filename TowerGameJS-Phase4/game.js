@@ -1,7 +1,7 @@
 'use strict'
 
 // wait for the window to load and than call back setup()
-window.addEventListener('load', setup, false);
+window.addEventListener('load', wait(setup), false);
 
 var towerGame;   // the global game object
 const FRAME_RATE=30;
@@ -9,11 +9,19 @@ var cellId = 0;
 
 
 function setup() {
+  var loader = document.getElementById('loader');
+  loader.style.display = 'none';
+  var wrap = document.getElementById('wrapperDiv');
+  wrap.style.display = 'block';
   towerGame = new Game();
   window.setTimeout(draw, 100);    // wait 100ms for resources to load then start draw loop
 
   //panelthings
 
+}
+
+function wait(func){
+  window.setTimeout(func, 1500);
 }
 
 function draw() {   // the animation loop
