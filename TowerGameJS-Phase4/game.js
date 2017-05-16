@@ -11,6 +11,9 @@ var cellId = 0;
 function setup() {
   towerGame = new Game();
   window.setTimeout(draw, 100);    // wait 100ms for resources to load then start draw loop
+
+  //panelthings
+
 }
 
 function draw() {   // the animation loop
@@ -30,10 +33,17 @@ class Game {
     this.towers = [];
     this.enemies = [];
     this.bullets = [];
+
     this.bankValue = 500;
+
     this.loadScreen = true;
     this.dead = false;
     this.millis;
+
+
+    this.score = 0;
+    this.wave = 0;
+    this.health = 100;
 
     this.canvas = document.createElement("canvas");
     if(!this.canvas || !this.canvas.getContext)
@@ -60,11 +70,44 @@ class Game {
             towerGame.sendEnemies();
             towerGame.dead = true;
         }, false);
+    this.currentWaveNum=0
+    this.wave=new Wave(this,AllWaves[this.currentWaveNum])
 
     this.mouseX = 0;
     this.mouseY = 0;
     this.w = 20;
     this.done = false;
+
+    //panelthings
+    this.panelStart = new Panel(this, 100,-500,"panelStart")
+    this.panelStart.createButtons()
+    // this.panelStart.ceatebutton("Start",
+    //   function(){
+    //     document.getElementById("panelStart").style.display = 'none'
+    //     towerGame.panelStart.go = true
+    //   }, "panelStartStartButton")
+    //
+    // this.panelStart.ceatebutton("Instructions",
+    //   function(){
+    //     document.getElementById("panelStart").style.display = 'none'
+    //     towerGame.panelInstructions = new Panel(this,100,-500, "panelInstructions")
+    //     towerGame.panelInstructions.ceatebutton("Back",
+    //       function(){
+    //         document.getElementById("panelStart").style.display = 'block'
+    //         document.getElementById("panelInstructions").parentNode.removeChild(document.getElementById("panelInstructions"))
+    //       }, "panelInstructionsButton")
+    //   }, "panelStartInstructionButton")
+    //
+    // this.panelStart.ceatebutton("Quit",
+    //   function(){
+    //     towerGame.panelQuit = new Panel(this,100,-500,"panelQuit")
+    //     document.getElementById("panelStart").style.display = 'none'
+    //   }, "panelStartQuitButton")
+
+
+
+
+
     // containerarrays for cells
     this.grid = [];
     this.cols = Math.floor(this.canvas.width / this.w);
@@ -113,14 +156,17 @@ class Game {
   hideImgElement() { this.style.display = "none"; }
 
   run() { // called from draw()
+
     if (!this.dead){
       let gt = this.updateGameTime();
       this.updateInfoElements(gt);
       this.removeBullets();
       this.removeEnemies();
+      this.controlWaves()
       if (this.isRunning) {
         this.render();
       }
+    }
 
       if (!this.loadScreen){
         // draw the grid
@@ -174,7 +220,41 @@ class Game {
           towerGame.restartGame();
         }
 
+
         document.getElementById("canDiv").appendChild(newButton);
+
+    // some help text in the bottom left of the canvas
+    this.context.save();
+    this.context.fillStyle = "white";
+    this.context.font = "14px sans-serif";
+    this.context.fillText("Press the E key to send enemies", 20, this.canvas.height-20);
+    this.context.restore();
+
+    //more panelthings
+    if(this.panelStart){
+      this.panelStart.render()
+    }
+
+    if(this.panelInstructions){
+      this.panelInstructions.render()
+    }
+
+    if(this.panelQuit){
+      this.panelQuit.render()
+    }
+
+    //collision detection
+    for(var i = this.enemies.length - 1; i >= 0; i--){
+      for(var j = this.bullets.length - 1; j >= 0; j--){
+        if(this.circlePointCollision(this.bullets[j].loc.x, this.bullets[j].loc.y, this.enemies[i].loc.x, this.enemies[i].loc.y, this.enemies[i].radius)){
+          this.bullets.splice(j, 1);
+          this.enemies[i].kill = true;
+          this.score = this.score + 1;
+          if(this.score % 20 === 0){
+            this.bankValue = this.bankValue + 10;
+          }
+        }
+
       }
     }
   }
@@ -214,7 +294,7 @@ class Game {
     // An adjacent neighbor has a step of 10
     // and a diagonal neighbor has a step of 14.
 
-  brushfire() {
+  brushfire(undo) { //if brushfire fails to make a valid map undo will be called
     // Initialize each cell in the grid to have a distance that
     // is the greatest possible.  Initialize each cell to
     // have no parent and populate it's array of neighbors
@@ -254,13 +334,22 @@ class Game {
                 }
           }     // for each neighbor
         }   // while(queue.length)
+    if(!this.validMap()){
+      if(undo){
+          undo()
+          this.brushfire()
+      }else{
+        // delete any enemy that is currently in a cell without a parent
+        for(let i = 0; i < this.enemies.length;  i++) {
+            let enemy = towerGame.enemies[i];
+            if(!enemy.currentCell.parent)
+                enemy.kill = true;    // kill the orphans
+            }
+            console.log("brushfire created an invalid map and no undo was inputed")
 
-    // delete any enemy that is currently in a cell without a parent
-    for(let i = 0; i < this.enemies.length;  i++) {
-        let enemy = towerGame.enemies[i];
-        if(!enemy.currentCell.parent)
-            enemy.kill = true;    // kill the orphans
-        }
+      }
+    }
+
 
         // give each cell a vector that points to its parent
 //       for(var i = 0; i < this.cols; i++){
@@ -270,7 +359,34 @@ class Game {
 //       }
 
     }
+    //check the map to see if there are cells without parents
+    validMap() {
+      for(var i = 0; i < this.cols; i++){
+        for(var j = 0; j < this.rows; j++){
+          var cell = this.grid[i][j];
+          if(!cell.parent && !(cell.occupied || cell.hasTower)&& cell!=this.root){
+            return false;
 
+          }
+        }
+      }
+      return true;
+    }
+    //undo an invalid map action
+    undo(cell,tower) {
+      if(tower){
+        return function() {
+          cell.hasTower=false;
+          towerGame.towers.splice(towerGame.towers.indexOf(tower))
+          alert("you cannot place a tower here")
+        }
+      }else{
+        return function() {
+          cell.occupied= !cell.occupied
+          alert("performing that action would create an invalid grid")
+        }
+      }
+    }
     // sendEnemies()
     // Send a random number of enemies, up to 5, each from a random location
     // in the top half of the grid.  About half of the enemies will take the
@@ -297,13 +413,20 @@ class Game {
                 }
             }
     }
-
+    controlWaves() {
+      if(this.wave.isWaveOver()){
+        this.currentWaveNum+=1
+        this.wave=new Wave(this,AllWaves[this.currentWaveNum])
+      }else{
+        this.wave.run()
+      }
+    }
     // Delete any enemies that have died
     removeEnemies() {
       for(let i = this.enemies.length-1; i >= 0; i--) {
         if(this.enemies[i].kill)
             this.enemies.splice(i,1);   // delete this dead enemy
-        else this.enemies[i].run();
+
         }
     }
 
@@ -327,15 +450,29 @@ class Game {
       // change the html content after condition--use indexOf
       if(info.innerHTML.indexOf('Bank') != -1){
         info.innerHTML = 'Bank <br/>' + this.bankValue;
+        if(this.bankValue < 0){
+          this.bankValue == 0;
+        }
       }else if(info.innerHTML.indexOf('Time') != -1){
         info.innerHTML = 'Time <br/>' + time;
+      }
+      if(info.innerHTML.indexOf('Score') != -1){
+        info.innerHTML = 'Score <br/>' + this.score;
+      }
+      if(info.innerHTML.indexOf('Wave') != -1){
+        info.innerHTML = 'Wave <br/>' + this.wave.waveJson.name;
+      }
+      if(info.innerHTML.indexOf('Health') != -1){
+        info.innerHTML = 'Health <br/>' + this.health;
       }
     }
   }
 
   updateGameTime(){
-    this.millis = Date.now();
-    if(this.millis - this.lastTime >= 1000) {
+
+    var millis = Date.now();
+    if(millis - this.lastTime >= 1000 && this.panelStart.go) {
+
       this.gameTime++;
       this.lastTime = this.millis;
     }
@@ -348,9 +485,7 @@ class Game {
       this.grid[i] = [];
       for(var j = 0; j < this.rows; j++){
         this.grid[i][j] = new Cell(this, vector2d((i*this.w), (j*this.w)), ++cellId);
-        // make 10% of the cells occupied
-        if(this.grid[i][j] != this.root && Math.floor(Math.random()*100) < 10)
-            this.grid[i][j].occupied = true;
+
       }
     }
 
@@ -367,8 +502,9 @@ class Game {
 
     for(var i = 0; i < 5; i++){
       var mtd = document.createElement("div"); // createDiv("");
-      var cnvTurImgPath = "tow" + (i+1) + "s.png";  // small tower image for canvas
-      var cnvBulImgPath = "b" + (i+1) + ".png";     // bullet image for canvas
+      var h5 = document.createTextNode("Cost");
+      var cnvTurImgPath = "resources/images/tow" + (i+1) + "s.png";  // small tower image for canvas
+      var cnvBulImgPath = "resources/images/b" + (i+1) + ".png";     // bullet image for canvas
       mtd.cnvTurImg = new Image();
       mtd.cnvTurImg.addEventListener('load',this.hideImgElement,false);
       mtd.cnvTurImg.addEventListener('error', function() { console.log(cnvTurImgPath + " failed to load"); }, false);
@@ -381,16 +517,19 @@ class Game {
 
       document.getElementById("menuDiv").appendChild(mtd);
 
+
       mtd.cost = 100*i +50;
       mtd.id = 'towImgDiv' + i;
       tiles.push(mtd);
-      var imgName = 'tow' + i + '.png'; // large image for menu tile
+      var imgName = 'resources/images/tow' + i + '.png'; // large image for menu tile
       var tImg = new Image();
       tImg.addEventListener('error', function() { console.log(imgName + " failed to load"); }, false);
       tImg.src = imgName;
       mtd.appendChild(tImg);
+
     }
     return tiles;
+
   }
 
   getBankValue(){
@@ -402,20 +541,25 @@ class Game {
     // Some money required but also cannot place tower on a cell
     // of the grid that is occupied or is the root cell
     if(towerGame.placingTower) {
-        if(!cell.occupied && !cell.hasTower && cell != towerGame.root)
-            return true;
-      }
-    return(false);
+        if(!cell.occupied && !cell.hasTower && cell != towerGame.root){
+          return true;
+        }
+      return(false);
+    }
   }
 
   createTower(mtd) { // menu turret div
     // create a new tower object and add to array list
     // the menu tower div contains the parameters for the tower
-    var tower = new Tower( mtd.cost, mtd.cnvTurImg, mtd.cnvBulImg);
-    if(tower)
-      this.towers.push(tower); // add tower to the end of the array of towers
-    else {
-      println('failed to make tower');
+    console.log("Bankvalue = " + this.bankValue);
+    console.log("Cost = " + mtd.cost);
+    if(this.bankValue >= mtd.cost){
+      var tower = new Tower( mtd.cost, mtd.cnvTurImg, mtd.cnvBulImg);
+      if(tower)
+        this.towers.push(tower); // add tower to the end of the array of towers
+      else {
+        println('failed to make tower');
+      }
     }
   }
 
@@ -431,7 +575,7 @@ class Game {
     // placing a tower makes the cell containing the tower
     // unavailable to enemies the same as if it were
     // occupied (blocked)
-    towerGame.brushfire();   // all new distances and parents
+    towerGame.brushfire(towerGame.undo(cell,towerGame.towers[towerGame.towers.length-1]));   // all new distances and parents
   }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ load callbacks
@@ -464,10 +608,13 @@ class Game {
     //if user clicks tile and not placing tile change placing to true
     // can add Tower checks cost and other conditions
     if(towerGame.placingTower === true) return;
-    if (towerGame.getBankValue() > 100) {
-      towerGame.createTower(this);
-      towerGame.placingTower = true;
-    }
+
+    towerGame.createTower(this);
+    towerGame.placingTower = true;
+
+
+
+
   }
 //  ++++++++++++++++++++++++++++++++++++++++++++++++++    mouse handlers
   handleCNVMouseOver() {
@@ -499,8 +646,82 @@ class Game {
     else if(!towerGame.placingTower && !cell.hasTower) {
         // toggle the occupied property of the clicked cell
         cell.occupied = !cell.occupied;
-        towerGame.brushfire();   // all new distances and parents
+        towerGame.brushfire(towerGame.undo(cell));   // all new distances and parents
         }
   }
+
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //collision detection utilities
+  distance(c0, c1){
+      this.x0 = c0.x;
+      this.y0 = c0.y;
+      this.x1 = c1.x;
+      this.y1 = c1.y;
+
+      var dx = this.x1 - this.x0;
+      var dy = this.y1 - this.y0;
+
+      return Math.sqrt(dx * dx + dy * dy);
+
+    }
+
+    distanceXY(x0, y0, x1, y1){
+      var dx = x1 - x0;
+      var dy = y1 - y0;
+
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    inRange(value, min, max){
+      return value >= Math.min(min, max) && Math.max(min, max) <= Math.max(min, max);
+    }
+
+  //parameters:
+  //loc1 = location vector of first circle
+  //loc2 = location vector of second circle
+  //rad1 = radius of first circle
+  //rad2 = radius of second circle
+    circleCollision(loc1, loc2, rad1, rad2){
+      if(this.distance(loc1, loc2) <= rad1 + rad2){
+        return true;
+      }
+    }
+
+    //parameters:
+    //x, y = locations of point
+    //circx, circy = locations of circle
+    //radius = radius of circle
+    circlePointCollision(x, y, circx, circy, radius){
+      if(this.distanceXY(x, y, circx, circy) < radius){
+        return true;
+      }
+    }
+
+    //parameters:
+    //x, y = locations of point
+    //loc = location vector of rectangle
+    //rect width, height = width and height of rectangle
+    rectanglePointCollision(x, y, loc, rectWidth, rectHeight){
+      if(this.inRange(x, loc.x, loc.x + rectWidth) && inRange(y, loc.y, loc.y + rectHeight)){
+        return true;
+      }
+    }
+
+
+    range(min0, max0, min1, max1){
+      return Math.max(min0, max0) >= Math.min(min1, max1) && Math.min(min0, max0) <= Math.max(min1, max1);
+    }
+
+
+    //parameters:
+    //loc1 = location vector of first rectangle
+    //loc2 = location vector of second rectangle
+    rectangleCollision(loc1, rectWidth1, rectHeight1, loc2, rectWidth2, rectHeight2){
+      if(this.range(loc1.x, loc1.x + rectWidth1, loc2.x, loc2.x + rectWidth2) &&
+      this.range(loc1.y, loc1.y + rectHeight1, loc2.y, loc2.y + rectHeight2)){
+    return true;
+  }
+    }
+
   //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Other
 } // end Game class +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

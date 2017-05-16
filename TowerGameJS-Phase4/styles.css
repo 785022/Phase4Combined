@@ -55,6 +55,8 @@ body{
   margin-top:38px;
   margin-left:10px;
   float:left;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14pt;
 }
 #towImgDiv0{
   background-color: #DDD;
@@ -115,3 +117,18 @@ body{
   padding-left: 20PX;
   border-radius: 5px;
 }
+ #panelStart{
+   position: absolute;
+    left: 40%;
+    margin-left: -50px;
+ }
+ #panelQuit{
+   position: absolute;
+    left: 40%;
+    margin-left: -50px;
+ }
+ #panelInstructions{
+   position: absolute;
+    left: 40%;
+    margin-left: -50px;
+ }
