@@ -43,6 +43,12 @@ body{
     margin: auto;
     margin-top: 300px;
 }
+.loadBar{
+  width: 350px;
+  height: 350px;
+  margin: auto;
+  margin-top: 300px;
+}
 
 @keyframes spin {
     0% { transform: rotate(0deg); }

@@ -1,6 +1,7 @@
 'use strict'
 
 // wait for the window to load and than call back setup()
+var loadCount = 0;
 window.addEventListener('load', wait(setup), false);
 
 var towerGame;   // the global game object
@@ -396,6 +397,7 @@ class Game {
   // the large images.  This divs also contain the
   // parameters for creating towers to be drawn on the
   // canvas.
+
   createTileDivs(){
     var tiles = [];
 
@@ -423,6 +425,11 @@ class Game {
       var imgName = 'resources/images/tow' + i + '.png'; // large image for menu tile
       var tImg = new Image();
       tImg.addEventListener('error', function() { console.log(imgName + " failed to load"); }, false);
+      // tImg.addEventListener('load', function(){
+      //   loadCount++;                                  +++commented out b/c
+      //   console.log(loadCount);                           it loads too fast
+      //   loader.innerHTML = "''+loadCount+'%'";
+      // }, false);
       tImg.src = imgName;
       mtd.appendChild(tImg);
 
