@@ -45,7 +45,7 @@ class Game {
     this.canvas.height = 750;
     this.canvas.canDiv=document.getElementById('canDiv')
     this.canvas.canDiv.appendChild(this.canvas);
-    
+
 
     this.context = this.canvas.getContext("2d");
     if(!this.context)
@@ -72,8 +72,6 @@ class Game {
     this.done = false;
     this.level= new Level1(this)
     //panelthings
-    this.panelStart = new Panel(this, 100,-500,"panelStart")
-    this.panelStart.createButtons()
     // this.panelStart.ceatebutton("Start",
     //   function(){
     //     document.getElementById("panelStart").style.display = 'none'

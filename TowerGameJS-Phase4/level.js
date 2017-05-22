@@ -2,33 +2,32 @@
 
 // The Level class contains most of the assets.
 class Level {
-    constructor(game, number, canvas) {
+  constructor(game, number, canvas) {
 
-        this.game = game;
-        this.number = number;
-        this.cnv = canvas;
-        this.init();
-    }
-    init() {
-      //lol
-    }
+    this.game = game;
+    this.number = number;
+    this.cnv = canvas;
+    this.init();
+  }
+  init() {
+    //lol
+  }
 }
 class Level1 extends Level {
   constructor(game){
     super(game,1)
-      this.game.canvas.canDiv.style.backgroundImage="url('resources/images/bg.png')"
+    this.game.canvas.canDiv.style.backgroundImage="url('resources/images/bg.png')"
+    this.panelStart = new Panel(this, 0)
+    this.panelInstructions = 0
+    this.panelQuit = 0
   }
   run() {
-    if(this.game.panelStart){
-      this.game.panelStart.render()
+    if(this.panelStart){
+      this.panelStart.render()
     }
 
-    if(this.game.panelInstructions){
-      this.game.panelInstructions.render()
-    }
-
-    if(this.game.panelQuit){
-      this.game.panelQuit.render()
+    if(this.panelInstructions){
+      this.panelInstructions.render()
     }
   }
 }
@@ -56,7 +55,7 @@ class Level2 extends Level{
         this.game.grid[i][j].render();
       }
     }
-     // draw the towers
+    // draw the towers
     for (let i = 0; i < this.game.towers.length; i++) {
       this.game.towers[i].run();
     }
@@ -88,11 +87,15 @@ class Level2 extends Level{
     // }
 
     //collision detection
-    for(var i = 0; i < this.game.enemies.length; i++){
-      for(var j = 0; j < this.game.bullets.length; j++){
+    for(var i = this.game.enemies.length-1; i >= 0; i--){
+      for(var j = this.game.bullets.length-1; j >= 0; j--){
         if(this.game.circlePointCollision(this.game.bullets[j].loc.x, this.game.bullets[j].loc.y, this.game.enemies[i].loc.x, this.game.enemies[i].loc.y, this.game.enemies[i].radius)){
           this.game.bullets.splice(j, 1);
-          this.game.enemies.splice(i, 1);
+          this.game.enemies[i].kill = true;
+          this.game.score = this.game.score + 1;
+          if(this.game.score % 20 === 0){
+            this.game.bankValue = this.game.bankValue + 10;
+          }
         }
       }
     }
@@ -107,8 +110,18 @@ class Level3 extends Level{
     super(game)
     this.game.enemies=[]
     this.game.canvas.canDiv.style.backgroundImage="url('resources/images/bg3.png')"
+    this.panelQuit = new Panel(this, 2)
+    this.panelCredits = 0
+    this.panelStart = 0
   }
   run() {
     this.game.render()
+
+    if(this.panelQuit){
+      this.panelQuit.render()
+    }
+    if(this.panelCredits){
+      this.panelCredits.render()
+    }
   }
 }
