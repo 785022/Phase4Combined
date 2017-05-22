@@ -5,7 +5,7 @@ class Enemy {
     this.currentCell = startCell;
     this.loc = startCell.center.copy();
     this.randomPath = randomPath;   //boolean to randomize or not
-    this.radius = 3.0;
+    this.radius = 15.0;
     this.vel = 3.0;       // velocity factor
     this.targetCell = this.nextTarget();
     this.target =  this.targetCell.center;
@@ -14,7 +14,7 @@ class Enemy {
     this.kill = false;
 
     this.img = new Image();
-    this.img.src = "images/spritesheets/enemy.png";
+    this.img.src = "resources/images/spritesheets/enemy.png";
     this.img.addEventListener('error', function() { console.log(this.img.src + " failed to load"); }, false);
   }
 

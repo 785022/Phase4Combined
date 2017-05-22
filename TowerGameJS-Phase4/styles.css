@@ -27,7 +27,6 @@ body{
 
 #canDiv{
   background-color: lightgreen;
-  background-image: url("mount.png");
   width:900px;
   height:750px;
   float:left;
@@ -117,3 +116,18 @@ body{
   padding-left: 20PX;
   border-radius: 5px;
 }
+ #panelStart{
+   position: absolute;
+    left: 40%;
+    margin-left: -50px;
+ }
+ #panelQuit{
+   position: absolute;
+    left: 40%;
+    margin-left: -50px;
+ }
+ #panelInstructions{
+   position: absolute;
+    left: 40%;
+    margin-left: -50px;
+ }
