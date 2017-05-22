@@ -57,14 +57,14 @@ class Tower {
           // reset lastTime to current time
           this.lastTime = millis;
           let bulletLocation = vector2d(this.loc.x, this.loc.y);
-          let b = new Bullet(bulletLocation , this.bulletImg, this.towAngle);
+          let b = new funBullet(bulletLocation , this.bulletImg, this.towAngle);
           towerGame.bullets.push(b);
 
     }
   }
   findEnemy(){
     for(let i=0;i<this.enemies.length;i++){
-      console.log(this.enemies[i]);
+      
       if(this.enemies[i].loc.dist(this.loc)<this.range){
         return this.enemies[i]
       }

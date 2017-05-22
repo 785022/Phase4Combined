@@ -65,7 +65,7 @@ class Enemy {
     // find a new target and rotate the velocity in the direaction
     // of the new target.
   update() {
-    if(this.loc.dist(this.target) <= this.radius*4) {    // if we have reached the current target
+    if(this.loc.dist(this.target) <= this.radius) {    // if we have reached the current target
         this.currentCell = this.targetCell;
         if(this.currentCell == this.game.root) {   // we have reached the end of the path
             this.kill = true;

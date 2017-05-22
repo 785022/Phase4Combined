@@ -8,6 +8,7 @@ class Bullet{
     this.speed = 12;
     this.angle = angle;
     this.img = bImg;
+    this.vel=vector2d( Math.cos(this.angle)*this.speed, Math.sin(this.angle)*this.speed)
   }
 
   run(){
@@ -15,7 +16,7 @@ class Bullet{
     this.update();
   }
   render(){
-  
+
     var ctx = towerGame.context;
     ctx.save();
     ctx.translate(this.loc.x, this.loc.y);
@@ -26,8 +27,21 @@ class Bullet{
   }
 
   update(){
-    this.loc.y += Math.sin(this.angle)*this.speed;
-    this.loc.x += Math.cos(this.angle)*this.speed;
+    this.loc.y += this.vel.y;
+    this.loc.x += this.vel.x;
 
   }
 }//  end Bullet class
+class funBullet extends Bullet{
+  constructor(location, bImg, angle){
+    super(location, bImg, angle)
+  }
+  run(){
+    this.render()
+    this.update()
+    this.fun()
+  }
+  fun(){
+    towerGame.bullets.push(new Bullet(this.loc.copy(),this.img,Math.random()*360))
+  }
+}
