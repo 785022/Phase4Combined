@@ -61,6 +61,11 @@ var panelJSON= [{
       picId: "play",
       funk: function(){
         towerGame.level= new Level2(towerGame)
+        towerGame.gameTime=0
+        towerGame.health=100
+        towerGame.enemies=[]
+        towerGame.score=0
+        towerGame.wave=  this.wave=new Wave(this,AllWaves[this.currentWaveNum])
         document.getElementById("firstPanel").parentNode.removeChild(document.getElementById("firstPanel"))
       }
     },{

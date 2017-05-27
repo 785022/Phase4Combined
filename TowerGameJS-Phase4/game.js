@@ -35,7 +35,6 @@ class Game {
     this.bullets = [];
 
     this.bankValue = 500;
-
     this.loadScreen = true;
     this.dead = false;
     this.millis;
@@ -157,8 +156,7 @@ class Game {
   hideImgElement() { this.style.display = "none"; }
 
   run() { // called from draw()
-
-
+    this.updateGameTime()
     this.level.run()
     // let gt = this.updateGameTime();
     // this.updateInfoElements(gt);
@@ -444,13 +442,11 @@ class Game {
   }
 
   updateGameTime(){
-
-    var millis = Date.now();
-    if(millis - this.lastTime >= 1000 && this.panelStart.go) {
-
+    var millis = Date.now()
+    if(millis - this.lastTime >= 1000){
 
       this.gameTime++;
-      this.lastTime = this.millis;
+      this.lastTime = millis;
     }
     return this.gameTime;
   }

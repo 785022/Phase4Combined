@@ -35,6 +35,7 @@ class Level2 extends Level{
   constructor(game) {
     super(game,2)
     this.game.canvas.canDiv.style.backgroundImage="url('resources/images/bg2.png')"
+    this.game.lastTime=Date.now()
   }
   init(){
 
