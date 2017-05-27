@@ -43,7 +43,10 @@ class Game {
         throw "No valid canvas found!";
     this.canvas.width = 900;
     this.canvas.height = 750;
-    document.getElementById('canDiv').appendChild(this.canvas);
+    this.canvas.canDiv=document.getElementById('canDiv')
+    this.canvas.canDiv.appendChild(this.canvas);
+
+
     this.context = this.canvas.getContext("2d");
     if(!this.context)
         throw "No valid context found!";
@@ -67,32 +70,32 @@ class Game {
     this.mouseY = 0;
     this.w = 20;
     this.done = false;
-
+    this.level= new Level1(this)
     //panelthings
-    this.panelStart = new Panel(this, 100,-500,"panelStart")
+    // this.panelStart.ceatebutton("Start",
+    //   function(){
+    //     document.getElementById("panelStart").style.display = 'none'
+    //     towerGame.panelStart.go = true
+    //   }, "panelStartStartButton")
+    //
+    // this.panelStart.ceatebutton("Instructions",
+    //   function(){
+    //     document.getElementById("panelStart").style.display = 'none'
+    //     towerGame.panelInstructions = new Panel(this,100,-500, "panelInstructions")
+    //     towerGame.panelInstructions.ceatebutton("Back",
+    //       function(){
+    //         document.getElementById("panelStart").style.display = 'block'
+    //         document.getElementById("panelInstructions").parentNode.removeChild(document.getElementById("panelInstructions"))
+    //       }, "panelInstructionsButton")
+    //   }, "panelStartInstructionButton")
+    //
+    // this.panelStart.ceatebutton("Quit",
+    //   function(){
+    //     towerGame.panelQuit = new Panel(this,100,-500,"panelQuit")
+    //     document.getElementById("panelStart").style.display = 'none'
+    //   }, "panelStartQuitButton")
 
-    this.panelStart.ceatebutton("Start",
-      function(){
-        document.getElementById("panelStart").style.display = 'none'
-        towerGame.panelStart.go = true
-      })
-    this.panelStart.ceatebutton("Instructions",
-      function(){
-        console.log(towerGame)
-        towerGame.panelInstructions = new Panel(this,100,-500, "panelInstructions")
-        document.getElementById("panelStart").style.display = 'none'
-        towerGame.panelInstructions.ceatebutton("Back",
-          function(){
-            document.getElementById("panelStart").style.display = 'block'
-            document.getElementById("panelInstructions").parentNode.removeChild(document.getElementById("panelInstructions"))
-          })
 
-      })
-    this.panelStart.ceatebutton("Quit",
-      function(){
-        towerGame.panelQuit = new Panel(this,100,-500,"panelQuit")
-        document.getElementById("panelStart").style.display = 'none'
-      })
 
 
 
@@ -112,56 +115,64 @@ class Game {
   hideImgElement() { this.style.display = "none"; }
 
   run() { // called from draw()
-    let gt = this.updateGameTime();
-    this.updateInfoElements(gt);
-    this.removeBullets();
-    this.removeEnemies();
-    this.controlWaves()
-    if (this.isRunning) {
-      this.render();
-    }
 
-    // draw the grid
-    for(let i = 0; i < this.cols; i++){
-      for(let j = 0; j < this.rows; j++){
-        this.grid[i][j].render();
-      }
-    }
-     // draw the towers
-    for (let i = 0; i < this.towers.length; i++) {
-      this.towers[i].run();
-    }
-    for (let i = 0; i < this.enemies.length; i++) {
-      this.enemies[i].run();
-    }
-    for (let i = 0; i < this.bullets.length; i++) {
-      this.bullets[i].run();
-    }
-
-    // some help text in the bottom left of the canvas
-    this.context.save();
-    this.context.fillStyle = "white";
-    this.context.font = "14px sans-serif";
-    this.context.fillText("Press the E key to send enemies", 20, this.canvas.height-20);
-    this.context.restore();
-
-    //more panelthings
-    //console.log(this.panelStart)
-    if(this.panelStart){
-      this.panelStart.render()
-    }
-
-    //console.log(this.panelInstructions)
-    if(this.panelInstructions){
-      this.panelInstructions.render()
-    }
-    //console.log(this.panelQuit)
-    if(this.panelQuit){
-      this.panelQuit.render()
-    }
-    // if(!this.panelStart.go){
-    //   this.gameTime = 0
+    this.level.run()
+    // let gt = this.updateGameTime();
+    // this.updateInfoElements(gt);
+    // this.removeBullets();
+    // this.removeEnemies();
+    // this.controlWaves()
+    // if (this.isRunning) {
+    //   this.render();
     // }
+    //
+    // // draw the grid
+    // for(let i = 0; i < this.cols; i++){
+    //   for(let j = 0; j < this.rows; j++){
+    //     this.grid[i][j].render();
+    //   }
+    // }
+    //  // draw the towers
+    // for (let i = 0; i < this.towers.length; i++) {
+    //   this.towers[i].run();
+    // }
+    // for (let i = 0; i < this.enemies.length; i++) {
+    //   this.enemies[i].run();
+    // }
+    // for (let i = 0; i < this.bullets.length; i++) {
+    //   this.bullets[i].run();
+    // }
+    //
+    // // some help text in the bottom left of the canvas
+    // this.context.save();
+    // this.context.fillStyle = "white";
+    // this.context.font = "14px sans-serif";
+    // this.context.fillText("Press the E key to send enemies", 20, this.canvas.height-20);
+    // this.context.restore();
+    //
+    // //more panelthings
+    // if(this.panelStart){
+    //   this.panelStart.render()
+    // }
+    //
+    // if(this.panelInstructions){
+    //   this.panelInstructions.render()
+    // }
+    //
+    // if(this.panelQuit){
+    //   this.panelQuit.render()
+    // }
+    //
+    // //collision detection
+    // for(var i = 0; i < this.enemies.length; i++){
+    //   for(var j = 0; j < this.bullets.length; j++){
+    //     if(this.circlePointCollision(this.bullets[j].loc.x, this.bullets[j].loc.y, this.enemies[i].loc.x, this.enemies[i].loc.y, this.enemies[i].radius)){
+    //       this.bullets.splice(j, 1);
+    //       this.enemies.splice(i, 1);
+    //     }
+    //   }
+    // }
+
   }
 
   render() { // draw game stuff
@@ -352,7 +363,7 @@ class Game {
 
   updateGameTime(){
     var millis = Date.now();
-    if(millis - this.lastTime >= 1000 && this.panelStart.go) {
+    if(millis - this.lastTime >= 1000 ) {
       this.gameTime++;
       this.lastTime = millis;
     }
@@ -380,11 +391,9 @@ class Game {
   createTileDivs(){
     var tiles = [];
 
-    for(var i = 0; i < 5; i++){
+    for(var i = 0; i < 6; i++){
       var mtd = document.createElement("div"); // createDiv("");
       var h5 = document.createTextNode("Cost");
-      var cnvTurImgPath = "images/tow" + (i+1) + "s.png";  // small tower image for canvas
-      var cnvBulImgPath = "images/b" + (i+1) + ".png";     // bullet image for canvas
 
       mtd.cnvTurImg = new Image();
       mtd.cnvTurImg.addEventListener('load',this.hideImgElement,false);
@@ -402,7 +411,7 @@ class Game {
       mtd.cost = 100*i +50;
       mtd.id = 'images/towImgDiv' + i;
       tiles.push(mtd);
-      var imgName = 'images/tow' + i + '.png'; // large image for menu tile
+
       var tImg = new Image();
       tImg.addEventListener('error', function() { console.log(imgName + " failed to load"); }, false);
       tImg.src = imgName;
@@ -528,5 +537,79 @@ class Game {
         towerGame.brushfire(towerGame.undo(cell));   // all new distances and parents
         }
   }
+
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //collision detection utilities
+  distance(c0, c1){
+      this.x0 = c0.x;
+      this.y0 = c0.y;
+      this.x1 = c1.x;
+      this.y1 = c1.y;
+
+      var dx = this.x1 - this.x0;
+      var dy = this.y1 - this.y0;
+
+      return Math.sqrt(dx * dx + dy * dy);
+
+    }
+
+    distanceXY(x0, y0, x1, y1){
+      var dx = x1 - x0;
+      var dy = y1 - y0;
+
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    inRange(value, min, max){
+      return value >= Math.min(min, max) && Math.max(min, max) <= Math.max(min, max);
+    }
+
+  //parameters:
+  //loc1 = location vector of first circle
+  //loc2 = location vector of second circle
+  //rad1 = radius of first circle
+  //rad2 = radius of second circle
+    circleCollision(loc1, loc2, rad1, rad2){
+      if(this.distance(loc1, loc2) <= rad1 + rad2){
+        return true;
+      }
+    }
+
+    //parameters:
+    //x, y = locations of point
+    //circx, circy = locations of circle
+    //radius = radius of circle
+    circlePointCollision(x, y, circx, circy, radius){
+      if(this.distanceXY(x, y, circx, circy) < radius){
+        return true;
+      }
+    }
+
+    //parameters:
+    //x, y = locations of point
+    //loc = location vector of rectangle
+    //rect width, height = width and height of rectangle
+    rectanglePointCollision(x, y, loc, rectWidth, rectHeight){
+      if(this.inRange(x, loc.x, loc.x + rectWidth) && inRange(y, loc.y, loc.y + rectHeight)){
+        return true;
+      }
+    }
+
+
+    range(min0, max0, min1, max1){
+      return Math.max(min0, max0) >= Math.min(min1, max1) && Math.min(min0, max0) <= Math.max(min1, max1);
+    }
+
+
+    //parameters:
+    //loc1 = location vector of first rectangle
+    //loc2 = location vector of second rectangle
+    rectangleCollision(loc1, rectWidth1, rectHeight1, loc2, rectWidth2, rectHeight2){
+      if(this.range(loc1.x, loc1.x + rectWidth1, loc2.x, loc2.x + rectWidth2) &&
+      this.range(loc1.y, loc1.y + rectHeight1, loc2.y, loc2.y + rectHeight2)){
+    return true;
+  }
+    }
+
   //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Other
 } // end Game class +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

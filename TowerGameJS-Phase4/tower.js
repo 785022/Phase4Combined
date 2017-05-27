@@ -13,9 +13,12 @@ class Tower {
     this.lastTime = Date.now();
     this.coolDown = 500;
     towerGame.bankValue = towerGame.bankValue- this.cost;
+
+    this.enemies=towerGame.enemies
     this.range=200
-    this.enemy=null
     this.target=null
+    this.enemy=null
+
   }
   run() {
     this.render();
@@ -34,12 +37,17 @@ class Tower {
   update() {
     //  Rotate turret to follow mouse
     this.enemy=this.findEnemy()
+
     if(this.enemy){
+
+
       this.target=this.enemy.loc
     }else{
       this.target=vector2d(towerGame.canvas.mouseX,towerGame.canvas.mouseY)
     }
+
     let dx = this.loc.x - this.target.x
+
     let dy = this.loc.y - this.target.y;
     this.towAngle = Math.atan2(dy, dx) - Math.PI;
     this.checkEnemies();
@@ -61,11 +69,12 @@ class Tower {
 
     }
   }
-  findEnemy() {
-    var tempEnemies=towerGame.enemies
-    for(var i=0;i<tempEnemies.length;i++){
-      if(tempEnemies[i].loc.dist(this.loc)<this.range){
-        return tempEnemies[i]
+
+  findEnemy(){
+    for(let i=0;i<this.enemies.length;i++){
+      if(this.enemies[i].loc.dist(this.loc)<this.range){
+        return this.enemies[i]
+
       }
     }
   }
