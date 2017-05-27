@@ -3,7 +3,7 @@ class Wave {
   constructor(game,waveJson) {
     this.game=game
     this.waveJson=waveJson
-    console.log(this.waveJson)
+
     this.enemyId=[0,0]
     this.referenceTime=this.game.gameTime+this.waveJson.waveIncrement
     this.spawnOver=false
