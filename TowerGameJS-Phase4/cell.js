@@ -22,8 +22,7 @@ class Cell{
     ctx.strokeStyle = 'white';
  //   ctx.strokeRect(this.loc.x, this.loc.y, this.game.w, this.game.w);
     if(this.occupied) {
-        ctx.fillStyle = "darkSlateGray";
-        ctx.fillRect(this.loc.x, this.loc.y, this.game.w, this.game.w);
+        ctx.drawImage(Cell.wallImage, 0, 0, Cell.wallImage.width, Cell.wallImage.height, this.loc.x, this.loc.y, this.game.w, this.game.w);
         }
     else if(this == this.game.root) {
         ctx.fillStyle = "yellow";

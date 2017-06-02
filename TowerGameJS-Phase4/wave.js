@@ -9,8 +9,8 @@ class Wave {
     this.spawnOver=false
   }
   run() {
-    if(!this.spawnOver){
-      while(this.game.gameTime>this.referenceTime){
+
+      while(this.game.gameTime>this.referenceTime && !this.spawnOver){
         if(this.enemyId[0]<this.waveJson.packets.length){
           if(this.enemyId[1]<this.waveJson.packets[this.enemyId[0]].num){
             this.game.enemies.push(this.enemySelector(this.game,this.waveJson.packets[this.enemyId[0]].enemy))
@@ -26,7 +26,7 @@ class Wave {
           break
         }
       }
-    }
+
   }
   isWaveOver() {
     if(!this.game.enemies[0] && this.spawnOver){
@@ -70,17 +70,17 @@ AllWaves=[
   {
     "packets":[
       {
-        "enemy":{
+        "enemy":{//this specifies the information about the enemy
           "enemy":Enemy1,
-          "enemyPosition":[
-            [
-              0,1
+          "enemyPosition":[// this specifies the range where a cell will randomly spawn
+            [// the two numbers are the min and max of positions
+              0,1// the number is scaled from 0 to 1 where 1 is the rightmost and 0 is the leftmost
             ],
             [
-              0,.5
+              0,.5 // this number is scaled from 0 to 1 where 1 is the bottom and 0 is the top
             ]
           ],
-          "additionalEnemyArguments":[
+          "additionalEnemyArguments":[//
             1
           ]
         },
@@ -173,7 +173,7 @@ AllWaves=[
           ]
         },
         "num":Infinity,
-        "enemyIncrement":.1,
+        "enemyIncrement":1,
         "packetIncrement":1
       },
       {
@@ -197,7 +197,7 @@ AllWaves=[
       }
     ],
     "name":"infinite wave",
-    "waveIncrement":3,
+    "waveIncrement":30,
     "info":"this wave should always be the last wave"
   }
 ]

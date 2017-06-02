@@ -1,16 +1,34 @@
 'use strict'
 
 // wait for the window to load and than call back setup()
-window.addEventListener('load', setup, false);
+window.addEventListener('load', loadImages, false);
 
 var towerGame;   // the global game object
 const FRAME_RATE=30;
 var cellId = 0;
 
+var bsImage;
+var ssImage;
+var load = document.getElementById('loader');
+var wrap;
 
+ function loadImages(){
+   bsImage = new Image();
+  bsImage.src = "resources/images/buttons.png";
+   ssImage = new Image();
+   ssImage.src = "resources/images/spritesheet.png";
+   window.setTimeout(setup, 1500);
+ }
 function setup() {
+  wrap = document.getElementById('wrapperDiv');
+  load.style.display = 'none';
+  wrap.style.display = 'block';
+
   towerGame = new Game();
   window.setTimeout(draw, 100);    // wait 100ms for resources to load then start draw loop
+
+  //panelthings
+
 }
 
 function draw() {   // the animation loop
@@ -32,12 +50,20 @@ class Game {
     this.bullets = [];
 
     this.bankValue = 500;
+
+    this.loadEnemyImages();
+    this.score = 0;
+    this.wave = 0;
+    this.health = 100;
     this.canvas = document.createElement("canvas");
     if(!this.canvas || !this.canvas.getContext)
         throw "No valid canvas found!";
     this.canvas.width = 900;
     this.canvas.height = 750;
-    document.getElementById('canDiv').appendChild(this.canvas);
+    this.canvas.canDiv=document.getElementById('canDiv')
+    this.canvas.canDiv.appendChild(this.canvas);
+
+
     this.context = this.canvas.getContext("2d");
     if(!this.context)
         throw "No valid context found!";
@@ -55,12 +81,41 @@ class Game {
             towerGame.sendEnemies();
         }, false);
     this.currentWaveNum=0
-    this.wave=new Wave(this,AllWaves[0])
+    this.wave=new Wave(this,AllWaves[this.currentWaveNum])
 
     this.mouseX = 0;
     this.mouseY = 0;
-    this.w = 20;
+    this.w = 50;
     this.done = false;
+    this.level= new Level1(this)
+    //panelthings
+    // this.panelStart.ceatebutton("Start",
+    //   function(){
+    //     document.getElementById("panelStart").style.display = 'none'
+    //     towerGame.panelStart.go = true
+    //   }, "panelStartStartButton")
+    //
+    // this.panelStart.ceatebutton("Instructions",
+    //   function(){
+    //     document.getElementById("panelStart").style.display = 'none'
+    //     towerGame.panelInstructions = new Panel(this,100,-500, "panelInstructions")
+    //     towerGame.panelInstructions.ceatebutton("Back",
+    //       function(){
+    //         document.getElementById("panelStart").style.display = 'block'
+    //         document.getElementById("panelInstructions").parentNode.removeChild(document.getElementById("panelInstructions"))
+    //       }, "panelInstructionsButton")
+    //   }, "panelStartInstructionButton")
+    //
+    // this.panelStart.ceatebutton("Quit",
+    //   function(){
+    //     towerGame.panelQuit = new Panel(this,100,-500,"panelQuit")
+    //     document.getElementById("panelStart").style.display = 'none'
+    //   }, "panelStartQuitButton")
+
+
+
+
+
     // containerarrays for cells
     this.grid = [];
     this.cols = Math.floor(this.canvas.width / this.w);
@@ -69,7 +124,43 @@ class Game {
     this.loadGrid();
     this.root = this.grid[this.cols - 1][this.rows -1];
     this.brushfire();
-}
+    this.loadWallImage();
+  }
+  //load wall stuff
+  loadWallImage(){
+    // grab the wall image from the buttons stprite sheet
+   var propName =  "B60000";
+   var f = buttonsJSON.frames[propName].frame;
+   createImageBitmap(bsImage, f.x, f.y, f.w, f.h).then(function(wallImage){
+     console.log(wallImage);
+     Cell.wallImage = wallImage;
+     //console.log(f);
+   },
+    function(){
+      alert('failed to make wallImage');
+    });
+
+  }
+
+
+  loadEnemyImages(){
+    var enemyData = [];
+
+    for (var i = 1; i <= 6; i++){
+      var propName = "E" + i + "0000";
+      var f = json.frames[propName].frame;
+      enemyData.push(createImageBitmap(ssImage, f.x, f.y, f.w, f.h));
+    }
+
+      Promise.all(enemyData).then(function(enemies){
+        Enemy.image1 = enemies[0];
+        Enemy.image2 = enemies[1];
+        Enemy.image3 = enemies[2];
+        Enemy.image4 = enemies[3];
+        Enemy.image5 = enemies[4];
+        Enemy.image6 = enemies[5];
+      });
+   }
 
   // The success callback when a tower canvas image
   // or bullet image has loaded.  Hide them from
@@ -77,38 +168,64 @@ class Game {
   hideImgElement() { this.style.display = "none"; }
 
   run() { // called from draw()
-    let gt = this.updateGameTime();
-    this.updateInfoElements(gt);
-    this.removeBullets();
-    this.removeEnemies();
-    this.controlWaves()
-    if (this.isRunning) {
-      this.render();
-    }
 
-    // draw the grid
-    for(let i = 0; i < this.cols; i++){
-      for(let j = 0; j < this.rows; j++){
-        this.grid[i][j].render();
-      }
-    }
-     // draw the towers
-    for (let i = 0; i < this.towers.length; i++) {
-      this.towers[i].run();
-    }
-    for (let i = 0; i < this.enemies.length; i++) {
-      this.enemies[i].run();
-    }
-    for (let i = 0; i < this.bullets.length; i++) {
-      this.bullets[i].run();
-    }
+    this.level.run()
+    // let gt = this.updateGameTime();
+    // this.updateInfoElements(gt);
+    // this.removeBullets();
+    // this.removeEnemies();
+    // this.controlWaves()
+    // if (this.isRunning) {
+    //   this.render();
+    // }
+    //
+    // // draw the grid
+    // for(let i = 0; i < this.cols; i++){
+    //   for(let j = 0; j < this.rows; j++){
+    //     this.grid[i][j].render();
+    //   }
+    // }
+    //  // draw the towers
+    // for (let i = 0; i < this.towers.length; i++) {
+    //   this.towers[i].run();
+    // }
+    // for (let i = 0; i < this.enemies.length; i++) {
+    //   this.enemies[i].run();
+    // }
+    // for (let i = 0; i < this.bullets.length; i++) {
+    //   this.bullets[i].run();
+    // }
+    //
+    // // some help text in the bottom left of the canvas
+    // this.context.save();
+    // this.context.fillStyle = "white";
+    // this.context.font = "14px sans-serif";
+    // this.context.fillText("Press the E key to send enemies", 20, this.canvas.height-20);
+    // this.context.restore();
+    //
+    // //more panelthings
+    // if(this.panelStart){
+    //   this.panelStart.render()
+    // }
+    //
+    // if(this.panelInstructions){
+    //   this.panelInstructions.render()
+    // }
+    //
+    // if(this.panelQuit){
+    //   this.panelQuit.render()
+    // }
+    //
+    // //collision detection
+    // for(var i = 0; i < this.enemies.length; i++){
+    //   for(var j = 0; j < this.bullets.length; j++){
+    //     if(this.circlePointCollision(this.bullets[j].loc.x, this.bullets[j].loc.y, this.enemies[i].loc.x, this.enemies[i].loc.y, this.enemies[i].radius)){
+    //       this.bullets.splice(j, 1);
+    //       this.enemies.splice(i, 1);
+    //     }
+    //   }
+    // }
 
-    // some help text in the bottom left of the canvas
-    this.context.save();
-    this.context.fillStyle = "white";
-    this.context.font = "14px sans-serif";
-    this.context.fillText("Press the E key to send enemies", 20, this.canvas.height-20);
-    this.context.restore();
   }
 
   render() { // draw game stuff
@@ -190,16 +307,21 @@ class Game {
     }
     //check the map to see if there are cells without parents
     validMap() {
-      for(var i = 0; i < this.cols; i++){
-        for(var j = 0; j < this.rows; j++){
-          var cell = this.grid[i][j];
-          if(!cell.parent && !(cell.occupied || cell.hasTower)&& cell!=this.root){
-            return false;
+      if(this.grid[0][0].occupied || this.grid[0][0].hasTower){
+        return false;
+      }
+      else{
+        for(var i = 0; i < this.cols; i++){
+          for(var j = 0; j < this.rows; j++){
+            var cell = this.grid[i][j];
+            if(!cell.parent && !(cell.occupied || cell.hasTower)&& cell!=this.root){
+              return false;
 
+            }
           }
         }
+        return true;
       }
-      return true;
     }
     //undo an invalid map action
     undo(cell,tower) {
@@ -230,9 +352,7 @@ class Game {
         var row, col, startCell, i, j;
         for( i = 0; i < numEnemies; i++) {
             for(j = 0; j < 3; j++) { // try 3 times to find valid start cell
-                let row = Math.floor(Math.random() * (this.rows/2));    // top  half of rows
-                let col = Math.floor(Math.random() * this.cols);        // any column
-                startCell = this.grid[col][row];
+                startCell = this.grid[0][0];
                 if(startCell && startCell.parent)   // must have a parent to have any path
                     break;
                 }
@@ -279,15 +399,27 @@ class Game {
       // change the html content after condition--use indexOf
       if(info.innerHTML.indexOf('Bank') != -1){
         info.innerHTML = 'Bank <br/>' + this.bankValue;
+        if(this.bankValue < 0){
+          this.bankValue == 0;
+        }
       }else if(info.innerHTML.indexOf('Time') != -1){
         info.innerHTML = 'Time <br/>' + time;
+      }
+      if(info.innerHTML.indexOf('Score') != -1){
+        info.innerHTML = 'Score <br/>' + this.score;
+      }
+      if(info.innerHTML.indexOf('Wave') != -1){
+        info.innerHTML = 'Wave <br/>' + this.wave.waveJson.name;
+      }
+      if(info.innerHTML.indexOf('Health') != -1){
+        info.innerHTML = 'Health <br/>' + this.health;
       }
     }
   }
 
   updateGameTime(){
     var millis = Date.now();
-    if(millis - this.lastTime >= 1000) {
+    if(millis - this.lastTime >= 1000 ) {
       this.gameTime++;
       this.lastTime = millis;
     }
@@ -306,7 +438,29 @@ class Game {
 
   }  // ++++++++++++++++++++++++++++++++++++++++++++++  End LoadGrid
 
+  createTowerBitmaps(ssImage, mtd, index){
+      if (!ssImage || !bsImage.complete){
+          alert("Images not loaded");
+          // quit code
+      }
+      var propertyName = "T" + (index+1) + "0000";
+      var frame = json.frames[propertyName].frame;
+      var bulletPropertyName = "p" + (index+1) + "0000";
+      var bulletFrame = json.frames[bulletPropertyName].frame;
+      //cool stuff
+      Promise.all([
+        createImageBitmap(ssImage, frame.x, frame.y, frame.w, frame.h),
+        createImageBitmap(ssImage, bulletFrame.x, bulletFrame.y, bulletFrame.w, bulletFrame.h)
+      ])
+        .then(
+          function(bmps){
+            mtd.cnvTurImg = bmps[0];
+            mtd.cnvBulImg = bmps[1];
+        }, function(){
+          alert("Error in creating bitmap");
+        });
 
+    }
 
   // Create the divs to hold the menu of towers with
   // the large images.  This divs also contain the
@@ -314,11 +468,15 @@ class Game {
   // canvas.
   createTileDivs(){
     var tiles = [];
-
+    var buttons = ["B10000", "B20000", "B30000", "B40000", "B50000", "B60000"];
+    //  loop through the towers and DO NOT include wall element
     for(var i = 0; i < 5; i++){
       var mtd = document.createElement("div"); // createDiv("");
-      var cnvTurImgPath = "tow" + (i+1) + "s.png";  // small tower image for canvas
-      var cnvBulImgPath = "b" + (i+1) + ".png";     // bullet image for canvas
+
+      /*
+      var h5 = document.createTextNode("Cost");
+      var cnvTurImgPath = "resources/images/tow" + (i+1) + "s.png";  // small tower image for canvas
+      var cnvBulImgPath = "resources/images/b" + (i+1) + ".png";     // bullet image for canvas
       mtd.cnvTurImg = new Image();
       mtd.cnvTurImg.addEventListener('load',this.hideImgElement,false);
       mtd.cnvTurImg.addEventListener('error', function() { console.log(cnvTurImgPath + " failed to load"); }, false);
@@ -328,19 +486,32 @@ class Game {
       mtd.cnvBulImg.addEventListener('load',this.hideImgElement,false);
       mtd.cnvBulImg.addEventListener('error', function() { console.log(cnvBulImgPath + " failed to load"); }, false);
       mtd.cnvBulImg.src = cnvBulImgPath;    // start loading image
+      */
+      var b = buttons[i];
+      var button = buttonsJSON.frames[b].frame;
+
+      var innerDiv = document.createElement("div");
+      innerDiv.id = "innerDiv" + i;
+      innerDiv.style.width = "90px";
+      innerDiv.style.height = "100px";
+       // Not using imageBitmaps for the buttons
+       // As they are not on the canvas
+      innerDiv.style.backgroundImage = "url(resources/images/buttons.png)";
+      innerDiv.style.backgroundPosition = `${-button.x}px ${-button.y}px`;
+      innerDiv.style.margin = "5px";
+      mtd.appendChild(innerDiv);
 
       document.getElementById("menuDiv").appendChild(mtd);
+
 
       mtd.cost = 100*i +50;
       mtd.id = 'towImgDiv' + i;
       tiles.push(mtd);
-      var imgName = 'tow' + i + '.png'; // large image for menu tile
-      var tImg = new Image();
-      tImg.addEventListener('error', function() { console.log(imgName + " failed to load"); }, false);
-      tImg.src = imgName;
-      mtd.appendChild(tImg);
+      this.createTowerBitmaps(ssImage, mtd,i)
+
     }
     return tiles;
+
   }
 
   getBankValue(){
@@ -362,11 +533,15 @@ class Game {
   createTower(mtd) { // menu turret div
     // create a new tower object and add to array list
     // the menu tower div contains the parameters for the tower
-    var tower = new Tower( mtd.cost, mtd.cnvTurImg, mtd.cnvBulImg);
-    if(tower)
-      this.towers.push(tower); // add tower to the end of the array of towers
-    else {
-      println('failed to make tower');
+    console.log("Bankvalue = " + this.bankValue);
+    console.log("Cost = " + mtd.cost);
+    if(this.bankValue >= mtd.cost){
+      var tower = new Tower( mtd.cost, mtd.cnvTurImg, mtd.cnvBulImg);
+      if(tower)
+        this.towers.push(tower); // add tower to the end of the array of towers
+      else {
+        println('failed to make tower');
+      }
     }
   }
 
@@ -415,10 +590,10 @@ class Game {
     //if user clicks tile and not placing tile change placing to true
     // can add Tower checks cost and other conditions
     if(towerGame.placingTower === true) return;
-    if (towerGame.getBankValue() > 100) {
-      towerGame.createTower(this);
-      towerGame.placingTower = true;
-    }
+    towerGame.createTower(this);
+    towerGame.placingTower = true;
+
+
 
   }
 //  ++++++++++++++++++++++++++++++++++++++++++++++++++    mouse handlers
@@ -454,5 +629,79 @@ class Game {
         towerGame.brushfire(towerGame.undo(cell));   // all new distances and parents
         }
   }
+
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //collision detection utilities
+  distance(c0, c1){
+      this.x0 = c0.x;
+      this.y0 = c0.y;
+      this.x1 = c1.x;
+      this.y1 = c1.y;
+
+      var dx = this.x1 - this.x0;
+      var dy = this.y1 - this.y0;
+
+      return Math.sqrt(dx * dx + dy * dy);
+
+    }
+
+    distanceXY(x0, y0, x1, y1){
+      var dx = x1 - x0;
+      var dy = y1 - y0;
+
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    inRange(value, min, max){
+      return value >= Math.min(min, max) && Math.max(min, max) <= Math.max(min, max);
+    }
+
+  //parameters:
+  //loc1 = location vector of first circle
+  //loc2 = location vector of second circle
+  //rad1 = radius of first circle
+  //rad2 = radius of second circle
+    circleCollision(loc1, loc2, rad1, rad2){
+      if(this.distance(loc1, loc2) <= rad1 + rad2){
+        return true;
+      }
+    }
+
+    //parameters:
+    //x, y = locations of point
+    //circx, circy = locations of circle
+    //radius = radius of circle
+    circlePointCollision(x, y, circx, circy, radius){
+      if(this.distanceXY(x, y, circx, circy) < radius){
+        return true;
+      }
+    }
+
+    //parameters:
+    //x, y = locations of point
+    //loc = location vector of rectangle
+    //rect width, height = width and height of rectangle
+    rectanglePointCollision(x, y, loc, rectWidth, rectHeight){
+      if(this.inRange(x, loc.x, loc.x + rectWidth) && inRange(y, loc.y, loc.y + rectHeight)){
+        return true;
+      }
+    }
+
+
+    range(min0, max0, min1, max1){
+      return Math.max(min0, max0) >= Math.min(min1, max1) && Math.min(min0, max0) <= Math.max(min1, max1);
+    }
+
+
+    //parameters:
+    //loc1 = location vector of first rectangle
+    //loc2 = location vector of second rectangle
+    rectangleCollision(loc1, rectWidth1, rectHeight1, loc2, rectWidth2, rectHeight2){
+      if(this.range(loc1.x, loc1.x + rectWidth1, loc2.x, loc2.x + rectWidth2) &&
+      this.range(loc1.y, loc1.y + rectHeight1, loc2.y, loc2.y + rectHeight2)){
+    return true;
+  }
+    }
+
   //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Other
 } // end Game class +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
