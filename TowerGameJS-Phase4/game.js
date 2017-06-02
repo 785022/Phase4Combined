@@ -55,6 +55,7 @@ class Game {
     this.score = 0;
     this.wave = 0;
     this.health = 100;
+    this.costDiv ='';
     this.canvas = document.createElement("canvas");
     if(!this.canvas || !this.canvas.getContext)
         throw "No valid canvas found!";
@@ -330,6 +331,7 @@ class Game {
           cell.hasTower=false;
           towerGame.towers.splice(towerGame.towers.indexOf(tower))
           alert("you cannot place a tower here")
+          towerGame.bankValue = towerGame.bankValue + tower.cost;
         }
       }else{
         return function() {
@@ -414,6 +416,9 @@ class Game {
       if(info.innerHTML.indexOf('Health') != -1){
         info.innerHTML = 'Health <br/>' + this.health;
       }
+      if(info.innerHTML.indexOf('Cost') != -1){
+        info.innerHTML = 'Cost <br/>'+this.costDiv;
+      }
     }
   }
 
@@ -487,6 +492,7 @@ class Game {
       mtd.cnvBulImg.addEventListener('error', function() { console.log(cnvBulImgPath + " failed to load"); }, false);
       mtd.cnvBulImg.src = cnvBulImgPath;    // start loading image
       */
+
       var b = buttons[i];
       var button = buttonsJSON.frames[b].frame;
 
@@ -508,6 +514,7 @@ class Game {
       mtd.id = 'towImgDiv' + i;
       tiles.push(mtd);
       this.createTowerBitmaps(ssImage, mtd,i)
+      mtd.setAttribute('title', 'Cost = '+mtd.cost);
 
     }
     return tiles;
@@ -576,10 +583,12 @@ class Game {
   //+++++++++++++++++++++++++   tile menu callbacks
   tileRollOver() {
     this.style.backgroundColor = '#f7e22a';
+    towerGame.costDiv = ""+this.cost;
   }
 
   tileRollOut() {
     this.style.backgroundColor = '#DDD';
+    towerGame.costDiv = "";
   }
 
   tilePressed() {
@@ -600,6 +609,7 @@ class Game {
   handleCNVMouseOver() {
     if(towerGame.towers.length < 1) return;
     towerGame.towers[towerGame.towers.length-1].visible = true;
+
   }
 
   handleCNVMouseMoved(event) {
@@ -623,10 +633,12 @@ class Game {
     if(towerGame.placingTower && towerGame.canAddTower(cell)){
       towerGame.placeTower(cell);
     }
-    else if(!towerGame.placingTower && !cell.hasTower) {
+    else if(!towerGame.placingTower && !cell.hasTower && towerGame.bankValue >= 5) {
         // toggle the occupied property of the clicked cell
         cell.occupied = !cell.occupied;
         towerGame.brushfire(towerGame.undo(cell));   // all new distances and parents
+        towerGame.bankValue = towerGame.bankValue - 5;
+
         }
   }
 

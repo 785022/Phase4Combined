@@ -70,13 +70,13 @@ class Level2 extends Level{
       }
     }
     // draw the towers
-    for (let i = 0; i < this.game.towers.length; i++) {
+    for (let i = this.game.towers.length-1; i >= 0 ; i--) {
       this.game.towers[i].run();
     }
-    for (let i = 0; i < this.game.enemies.length; i++) {
+    for (let i = this.game.enemies.length-1; i >= 0 ; i--) {
       this.game.enemies[i].run();
     }
-    for (let i = 0; i < this.game.bullets.length; i++) {
+    for (let i = this.game.bullets.length-1; i >= 0 ; i--) {
       this.game.bullets[i].run();
     }
 
